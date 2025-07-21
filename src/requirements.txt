@@ -1,0 +1,6 @@
+# Azure Functions Worker
+azure-functions>=1.18.0
+
+# Azure SDK packages for blob storage and identity
+azure-storage-blob>=12.19.0
+azure-identity>=1.15.0
