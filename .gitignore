@@ -6,6 +6,23 @@ __pycache__/
 # C extensions
 *.so
 
+# Azurite
+__azurite*
+AzuriteConfig
+__blobstorage__
+__queuestorage__
+__tablestorage__
+
+# VS Code
+.vscode/
+
+# Mac DS_Store files
+#  These files are created by macOS to store custom attributes of a folder such as the
+#  position of icons or the choice of background image. They are not needed in version control
+#  and can be safely ignored.
+#  For more information, see https://en.wikipedia.org/wiki/.DS_Store
+.DS_Store
+
 # Distribution / packaging
 .Python
 build/
