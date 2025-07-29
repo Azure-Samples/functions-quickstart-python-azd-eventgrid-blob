@@ -147,22 +147,33 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 Now that the storage emulator is running, has files on the `unprocessed-pdf` container, and our app is running, we can execute the `process_blob_upload` function to simulate a new blob event.
 
-+ If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `process_blob_upload` function. This will trigger the function to process the `Benefit_Options.pdf` file. You can update the file name in the JSON to process other PDF files.
++ If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port in the `@host` variable (if needed), and then click on Send Request to call the locally running `process_blob_upload` function. This will trigger the function to process the `PerksPlus.pdf` file by default. You can update the `@blobName` variable to process other PDF files from the data folder.
+
+The `test.http` file uses REST Client variable syntax to make testing easier:
+- `@host`: The base URL for your locally running function (default: `http://localhost:7071`)
+- `@functionName`: The name of the function to trigger (`process_blob_upload`)
+- `@blobContainer`: The source blob container (`unprocessed-pdf`)
+- `@blobName`: The specific blob file to process (default: `PerksPlus.pdf`)
+
+Make sure the file specified in `@blobName` exists in the `unprocessed-pdf` container before triggering the function.
 
 ## Source Code
 
 The function code for the `process_blob_upload` endpoint is defined in [`function_app.py`](./src/function_app.py). The function uses the Python v2 programming model and the `@app.blob_trigger()` decorator to register the blob trigger with Event Grid source.
 
     ```python
-    @app.blob_trigger(arg_name="blob", 
+    @app.blob_trigger(arg_name="input_blob", 
                       path="unprocessed-pdf/{name}",
                       connection="PDFProcessorSTORAGE",
-                      source="EventGrid")
-    def process_blob_upload(blob: func.InputStream) -> None:
+                      source=func.BlobSource.EVENT_GRID)
+    @app.blob_input(arg_name="processed_container",
+                    path="processed-pdf",
+                    connection="PDFProcessorSTORAGE")
+    def process_blob_upload(input_blob: func.InputStream, processed_container: blob.ContainerClient) -> None:
         # Function implementation
     ```
 
-The `copy_to_processed_container` method uses the Azure Storage Blob SDK to upload the processed file to the destination blob container.
+The function uses Azure Functions SDK type bindings with a `ContainerClient` input binding to upload the processed file to the destination blob container.
 
 ## Deploy to Azure
 
