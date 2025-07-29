@@ -1,3 +1,4 @@
+<!--
 ---
 page_type: sample
 languages:
@@ -14,7 +15,7 @@ urlFragment: functions-quickstart-python-azd-eventgrid-blob
 name: Azure Functions Python Event Grid Blob Trigger using Azure Developer CLI
 description: This template repository contains an Azure Functions reference sample using the Blob trigger with Event Grid source type, written in Python (v2 programming model) and deployed to Azure using the Azure Developer CLI (azd). The sample uses managed identity and a virtual network to make sure deployment is secure by default.
 ---
-<!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
+-->
 
 # Azure Functions Python Event Grid Blob Trigger using Azure Developer CLI
 
@@ -75,38 +76,7 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 2. Use Azure Storage Explorer, or the VS Code Storage Extension to create the containers.
 
-   **Using Azure Storage Explorer:**
-   + Install [Azure Storage Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/#Download-4)
-   + Open Azure Storage Explorer.
-   + Connect to the local emulator by selecting `Attach to a local emulator.`
-   + Navigate to the `Blob Containers` section.
-   + Right-click and select `Create Blob Container.`
-   + Name the containers `processed-pdf` and `unprocessed-pdf`.
-
-   **Using VS Code Storage Extension:**
-   + Install the VS Code [Azure Storage extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestorage)
-   + Ensure Azurite is running
-   + Click on the Azure extension icon in VS Code
-   + Under `Workspace`, expand `Local Emulator`
-   + Right click on `Blob Containers` and select `Create Blob Container`
-   + Name the containers `processed-pdf` and `unprocessed-pdf`
-
 3. Upload the PDF files from the `data` folder to the `unprocessed-pdf` container.
-
-   **Using Azure Storage Explorer:**
-    + Open Azure Storage Explorer.
-    + Navigate to the `unprocessed-pdf` container.
-    + Click on "Upload" and select "Upload Folder" or "Upload Files."
-    + Choose the `data` folder or the specific PDF files to upload.
-    + Confirm the upload to the `unprocessed-pdf` container.
-
-   **Using VS Code Storage Extension:**
-   + Install the VS Code [Azure Storage extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestorage)
-   + Ensure Azurite is running
-   + Click on the Azure extension icon in VS Code
-   + Under `Workspace`, expand `Local Emulator`, expand `Blob Containers`
-   + Right click on `unprocessed-pdf` and select `Open in Explorer`
-   + Copy and paste all the pdf files from the `data` folder to it
 
 ## Run your app
 
@@ -151,18 +121,25 @@ Now that the storage emulator is running, has files on the `unprocessed-pdf` con
 
 ## Source Code
 
-The function code for the `process_blob_upload` endpoint is defined in [`function_app.py`](./src/function_app.py). The function uses the Python v2 programming model and the `@app.blob_trigger()` decorator to register the blob trigger with Event Grid source.
+The function code for the `process_blob_upload` endpoint is defined in [`function_app.py`](./src/function_app.py). The function uses the Python v2 programming model and the `@app.blob_trigger()` decorator to register the blob trigger with Event Grid source and the trigger provides a stream of the file being processed. The function declaration also defines an input binding that gets a reference to the destination container where the files being processed will be uploaded.
 
     ```python
-    @app.blob_trigger(arg_name="blob", 
-                      path="unprocessed-pdf/{name}",
-                      connection="PDFProcessorSTORAGE",
-                      source="EventGrid")
-    def process_blob_upload(blob: func.InputStream) -> None:
-        # Function implementation
+      @app.blob_trigger(arg_name="input_blob", 
+                        path="unprocessed-pdf/{name}",
+                        connection="PDFProcessorSTORAGE",
+                        source=func.BlobSource.EVENT_GRID)
+      @app.blob_input(arg_name="processed_container",
+                      path="processed-pdf",
+                      connection="PDFProcessorSTORAGE")
+      def process_blob_upload(input_blob: func.InputStream, processed_container: blob.ContainerClient) -> None:
+    
+      # Function implementation
     ```
 
-The `copy_to_processed_container` method uses the Azure Storage Blob SDK to upload the processed file to the destination blob container.
+The function implementation then uses the container client to upload the input stream to the destination blob container, prepending `processed_` to the incoming file name.
+
+## Verify that the files were copied
+Now that you have triggered the function, use the Azure Storage Explorer, or the VS Code Storage Extension, to check that the `processed-pdf` container has the processed file.
 
 ## Deploy to Azure
 
