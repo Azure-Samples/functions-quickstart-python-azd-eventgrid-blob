@@ -117,7 +117,15 @@ Create two containers in the local storage emulator called `processed-pdf` and `
 
 Now that the storage emulator is running, has files on the `unprocessed-pdf` container, and our app is running, we can execute the `process_blob_upload` function to simulate a new blob event.
 
-+ If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port on the `localhost` URL (if needed), and then click on Send Request to call the locally running `process_blob_upload` function. This will trigger the function to process the `Benefit_Options.pdf` file. You can update the file name in the JSON to process other PDF files.
++ If you are using VS Code, Visual Studio, or other tooling that supports .http files, you can open the [`test.http`](./test.http) project file, update the port in the `@host` variable (if needed), and then click on Send Request to call the locally running `process_blob_upload` function. This will trigger the function to process the `PerksPlus.pdf` file by default. You can update the `@blobName` variable to process other PDF files from the data folder.
+
+The `test.http` file uses REST Client variable syntax to make testing easier:
+- `@host`: The base URL for your locally running function (default: `http://localhost:7071`)
+- `@functionName`: The name of the function to trigger (`process_blob_upload`)
+- `@blobContainer`: The source blob container (`unprocessed-pdf`)
+- `@blobName`: The specific blob file to process (default: `PerksPlus.pdf`)
+
+Make sure the file specified in `@blobName` exists in the `unprocessed-pdf` container before triggering the function.
 
 ## Source Code
 
