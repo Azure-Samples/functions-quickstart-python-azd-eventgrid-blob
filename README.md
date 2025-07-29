@@ -129,7 +129,7 @@ Make sure the file specified in `@blobName` exists in the `unprocessed-pdf` cont
 
 ## Source Code
 
-The function code for the `process_blob_upload` endpoint is defined in [`function_app.py`](./src/function_app.py). The function uses the Python v2 programming model and the `@app.blob_trigger()` decorator to register the blob trigger with Event Grid source and the trigger provides a stream of the file being processed. The function declaration also defines an input binding that gets a reference to the destination container where the files being processed will be uploaded.
+The function code for the `process_blob_upload` endpoint is defined in [`function_app.py`](./src/function_app.py). The function uses the Python v2 programming model and the `@app.blob_trigger()` decorator to register the blob trigger with Event Grid source and the trigger provides a BlobClient of the file being processed. The function declaration also defines an input binding that gets a reference to the destination container where the files being processed will be uploaded.
 
     ```python
       @app.blob_trigger(arg_name="input_blob", 
@@ -139,7 +139,7 @@ The function code for the `process_blob_upload` endpoint is defined in [`functio
       @app.blob_input(arg_name="processed_container",
                       path="processed-pdf",
                       connection="PDFProcessorSTORAGE")
-      def process_blob_upload(input_blob: func.InputStream, processed_container: blob.ContainerClient) -> None:
+      def process_blob_upload(input_blob: blob.BlobClient, processed_container: blob.ContainerClient) -> None:
     
       # Function implementation
     ```
