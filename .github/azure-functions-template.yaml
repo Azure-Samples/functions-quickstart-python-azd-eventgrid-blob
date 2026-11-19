@@ -1,0 +1,10 @@
+# This descriptor drives template package creation in the packaging pipeline.
+schemaVersion: 1
+identity: Azure.Functions.Templates.EventGridBlobPython
+description: Create a Python Azure Functions app for Event Grid Blob Trigger, with deployment files for azd.
+projects:
+- name: Azure Functions Event Grid Blob Trigger (Python)
+  shortName: functions-quickstart-python-eventgrid-blob
+  root: .
+  stack: python
+  language: Python
